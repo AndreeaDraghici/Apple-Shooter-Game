@@ -1,5 +1,7 @@
 package org.example;
 
+import javax.swing.*;
+
 /**
  * Created by Andreea Draghici on 1/27/2024
  * Name of project: Default (Template) Project
