@@ -16,9 +16,12 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     private boolean moveRight = false;
     private boolean shooting = false;
     private int score = 0; // Variabila pentru a ține evidența scorului
+
     private ArrayList<Rectangle> projectiles = new ArrayList<>();
     private ArrayList<Rectangle> enemies = new ArrayList<>();
     private int frames = 0;
+
+    private boolean gameOver = false; // Flag pentru a verifica dacă jocul s-a terminat
 
     public SampleShooterGame() {
         setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
@@ -32,61 +35,71 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.setColor(Color.RED);
-        g.fillRect(playerX, WINDOW_HEIGHT - 50, PLAYER_SIZE, PLAYER_SIZE);
+        if (!gameOver) {
+                    super.paintComponent(g);
+                    g.setColor(Color.RED);
+                    g.fillRect(playerX, WINDOW_HEIGHT - 50, PLAYER_SIZE, PLAYER_SIZE);
 
-        g.setColor(Color.YELLOW);
-        for (Rectangle projectile : projectiles) {
-            g.fillRect(projectile.x, projectile.y, PROJECTILE_SIZE, PROJECTILE_SIZE);
+                    g.setColor(Color.YELLOW);
+                    for (Rectangle projectile : projectiles) {
+                        g.fillRect(projectile.x, projectile.y, PROJECTILE_SIZE, PROJECTILE_SIZE);
+                    }
+
+                    g.setColor(Color.WHITE);
+                    for (Rectangle enemy : enemies) {
+                        g.fillRect(enemy.x, enemy.y, ENEMY_SIZE, ENEMY_SIZE);
+                    }
+
+                    // Desenăm scorul
+                    g.setColor(Color.WHITE);
+                    g.setFont(new Font("Arial", Font.BOLD, 20));
+                    g.drawString("Scor: " + score, 10, 20);
+        } else {
+            // Afisăm mesajul GAME OVER
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 72));
+            g.drawString("GAME OVER", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2);
         }
-
-        g.setColor(Color.WHITE);
-        for (Rectangle enemy : enemies) {
-            g.fillRect(enemy.x, enemy.y, ENEMY_SIZE, ENEMY_SIZE);
-        }
-
-        // Desenăm scorul
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Scor: " + score, 10, 20);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (moveLeft) playerX -= 5;
-        if (moveRight) playerX += 5;
-        playerX = Math.max(0, Math.min(WINDOW_WIDTH - PLAYER_SIZE, playerX));
+        if (!gameOver) {
 
-        if (shooting && frames % 15 == 0) { // Trage la fiecare 15 cadre
-            projectiles.add(new Rectangle(playerX + PLAYER_SIZE / 2 - PROJECTILE_SIZE / 2, WINDOW_HEIGHT - 60, PROJECTILE_SIZE, PROJECTILE_SIZE));
+            if (moveLeft) playerX -= 5;
+            if (moveRight) playerX += 5;
+            playerX = Math.max(0, Math.min(WINDOW_WIDTH - PLAYER_SIZE, playerX));
+
+            if (shooting && frames % 15 == 0) { // Trage la fiecare 15 cadre
+                projectiles.add(new Rectangle(playerX + PLAYER_SIZE / 2 - PROJECTILE_SIZE / 2, WINDOW_HEIGHT - 60, PROJECTILE_SIZE, PROJECTILE_SIZE));
+            }
+
+            // Mișcarea proiectilelor
+            for (Rectangle projectile : projectiles) {
+                projectile.y -= 10;
+            }
+
+            // Elimină proiectilele care ies din ecran
+            projectiles.removeIf(projectile -> projectile.y + PROJECTILE_SIZE < 0);
+
+            // Generarea inamicilor
+            if (frames % ENEMY_SPAWN_RATE == 0) {
+                int enemyX = (int) (Math.random() * (WINDOW_WIDTH - ENEMY_SIZE));
+                enemies.add(new Rectangle(enemyX, 0, ENEMY_SIZE, ENEMY_SIZE));
+            }
+
+            // Mișcarea inamicilor
+            for (Rectangle enemy : enemies) {
+                enemy.y += 5;
+            }
+
+            // Verifică coliziunile
+            checkCollisions();
+
+            // Actualizează și redesenează
+            frames++;
+            repaint();
         }
-
-        // Mișcarea proiectilelor
-        for (Rectangle projectile : projectiles) {
-            projectile.y -= 10;
-        }
-
-        // Elimină proiectilele care ies din ecran
-        projectiles.removeIf(projectile -> projectile.y + PROJECTILE_SIZE < 0);
-
-        // Generarea inamicilor
-        if (frames % ENEMY_SPAWN_RATE == 0) {
-            int enemyX = (int) (Math.random() * (WINDOW_WIDTH - ENEMY_SIZE));
-            enemies.add(new Rectangle(enemyX, 0, ENEMY_SIZE, ENEMY_SIZE));
-        }
-
-        // Mișcarea inamicilor
-        for (Rectangle enemy : enemies) {
-            enemy.y += 5;
-        }
-
-        // Verifică coliziunile
-        checkCollisions();
-
-        // Actualizează și redesenează
-        frames++;
-        repaint();
     }
 
     private void checkCollisions() {
@@ -104,6 +117,16 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
 
                     break;
                 }
+            }
+        }
+
+        // Verificăm coliziunea dintre inamici și jucător
+        Rectangle playerRect = new Rectangle(playerX, WINDOW_HEIGHT - 50, PLAYER_SIZE, PLAYER_SIZE);
+        for (Rectangle enemy : enemies) {
+            if (playerRect.intersects(enemy)) {
+                gameOver = true; // Setăm flag-ul gameOver pe true
+                timer.stop(); // Oprim timer-ul pentru a opri actualizarea jocului
+                break;
             }
         }
     }
