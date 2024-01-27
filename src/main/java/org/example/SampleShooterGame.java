@@ -1,30 +1,21 @@
 package org.example;
 
-/**
- * Created by Andreea Draghici on 1/27/2024
- * Name of project: ShooterGame
- */
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class SampleShooterGame extends JPanel implements ActionListener, KeyListener {
+import static org.example.Utils.*;
 
-    private final int WINDOW_WIDTH = 800;
-    private final int WINDOW_HEIGHT = 600;
-    private final int PLAYER_SIZE = 40;
-    private final int PROJECTILE_SIZE = 10;
-    private final int ENEMY_SIZE = 40;
-    private final int ENEMY_SPAWN_RATE = 40; // Inamicii apar la fiecare 40 de cadre
+public class SampleShooterGame extends JPanel implements ActionListener, KeyListener {
 
     private Timer timer;
     private int playerX = WINDOW_WIDTH / 2 - PLAYER_SIZE / 2;
     private boolean moveLeft = false;
     private boolean moveRight = false;
     private boolean shooting = false;
-
+    private int score = 0; // Variabila pentru a ține evidența scorului
     private ArrayList<Rectangle> projectiles = new ArrayList<>();
     private ArrayList<Rectangle> enemies = new ArrayList<>();
     private int frames = 0;
@@ -42,18 +33,23 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.setColor(Color.WHITE);
+        g.setColor(Color.RED);
         g.fillRect(playerX, WINDOW_HEIGHT - 50, PLAYER_SIZE, PLAYER_SIZE);
 
-        g.setColor(Color.RED);
+        g.setColor(Color.YELLOW);
         for (Rectangle projectile : projectiles) {
             g.fillRect(projectile.x, projectile.y, PROJECTILE_SIZE, PROJECTILE_SIZE);
         }
 
-        g.setColor(Color.GREEN);
+        g.setColor(Color.WHITE);
         for (Rectangle enemy : enemies) {
             g.fillRect(enemy.x, enemy.y, ENEMY_SIZE, ENEMY_SIZE);
         }
+
+        // Desenăm scorul
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 20));
+        g.drawString("Scor: " + score, 10, 20);
     }
 
     @Override
@@ -103,6 +99,9 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
                 if (enemy.intersects(projectile)) {
                     projectileIterator.remove();
                     enemyIterator.remove();
+
+                    score += 10; // Incrementăm scorul pentru fiecare inamic lovit
+
                     break;
                 }
             }
