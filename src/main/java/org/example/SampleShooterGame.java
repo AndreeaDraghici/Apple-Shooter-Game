@@ -131,14 +131,4 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     public void keyTyped(KeyEvent e) {
         // Această metodă nu este utilizată, dar trebuie să fie prezentă din cauza implementării KeyListener
     }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Shooter Game");
-        SampleShooterGame gamePanel = new SampleShooterGame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(gamePanel);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-    }
 }
