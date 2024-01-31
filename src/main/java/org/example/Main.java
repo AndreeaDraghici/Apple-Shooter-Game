@@ -12,11 +12,10 @@ public class Main {
         frame.getContentPane().add(gamePanel);
         frame.pack();
         frame.setLocationRelativeTo(null);
-
+        frame.setResizable(false);
         ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(Main.class.getResource("/Picture1.png")));
         Image image = imageIcon.getImage();
         frame.setIconImage(image);
-
         frame.setVisible(true);
     }
 }

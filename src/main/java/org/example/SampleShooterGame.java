@@ -44,15 +44,15 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
         setBackground(Color.BLACK);
         setFocusable(true);
         addKeyListener(this);
+        setLayout(null);
         // Setăm dimensiunile butonului
-        int buttonWidth = 200;
-        int buttonHeight = 200;
-
+        int buttonWidth = 150;
+        int buttonHeight = 40;
+        startButton = new JButton("Start Game");
         // Calculăm poziția centrală pentru buton
         int buttonX = WINDOW_WIDTH / 2 - buttonWidth / 2;
         int buttonY = WINDOW_HEIGHT / 2 - buttonHeight / 2;
 
-        startButton = new JButton("Start Game");
         startButton.setBounds(buttonX, buttonY, buttonWidth, buttonHeight);
         add(startButton);
 
