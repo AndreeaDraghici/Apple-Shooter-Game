@@ -1,6 +1,8 @@
 package org.example;
 
 import javax.swing.*;
+import java.awt.*;
+import java.util.Objects;
 
 public class Main {
     public static void main(String[] args) {
@@ -10,6 +12,11 @@ public class Main {
         frame.getContentPane().add(gamePanel);
         frame.pack();
         frame.setLocationRelativeTo(null);
+
+        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(Main.class.getResource("/Picture1.png")));
+        Image image = imageIcon.getImage();
+        frame.setIconImage(image);
+
         frame.setVisible(true);
     }
 }
