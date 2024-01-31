@@ -25,9 +25,9 @@ Make sure you're in the correct directory and have the necessary permissions to 
 * Avoid letting enemies reach the player. Each enemy destroyed increases your score.
 * The game ends when an enemy collides with the player, displaying a "GAME OVER" message.
 
-![img.png](img.png)
+![img_2.png](img_2.png)
 
-![img_1.png](img_1.png)
+![img.png](img.png)
 
 ### Features
 * **Player Movement:** The player can move left and right across the bottom of the screen.
