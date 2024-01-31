@@ -36,7 +36,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
         addKeyListener(this);
 
         try {
-            playerImage = ImageIO.read(getClass().getResource("/ottoa.png"));
+            playerImage = ImageIO.read(getClass().getResource("/otter.png"));
             shooterImage = ImageIO.read(getClass().getResource("/appleShooter.png"));
         } catch (IOException e) {
             e.printStackTrace();
