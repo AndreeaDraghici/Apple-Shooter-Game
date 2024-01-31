@@ -3,8 +3,10 @@ package org.example;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import javax.imageio.ImageIO;
 
 import static org.example.Utils.*;
 
@@ -23,11 +25,23 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
 
     private boolean gameOver = false; // Flag pentru a verifica dacă jocul s-a terminat
 
+    private Image playerImage;
+    private Image enemyImage;
+    private Image shooterImage;
+
     public SampleShooterGame() {
         setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         setBackground(Color.BLACK);
         setFocusable(true);
         addKeyListener(this);
+
+        try {
+            playerImage = ImageIO.read(getClass().getResource("/ottoa.png"));
+            shooterImage = ImageIO.read(getClass().getResource("/appleShooter.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         timer = new Timer(1000 / 60, this);
         timer.start();
@@ -36,24 +50,24 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     @Override
     protected void paintComponent(Graphics g) {
         if (!gameOver) {
-                    super.paintComponent(g);
-                    g.setColor(Color.RED);
-                    g.fillRect(playerX, WINDOW_HEIGHT - 50, PLAYER_SIZE, PLAYER_SIZE);
+            super.paintComponent(g);
+            g.setColor(Color.RED);
+            g.drawImage(playerImage, playerX, WINDOW_HEIGHT - 50 - PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE, this);
 
-                    g.setColor(Color.YELLOW);
-                    for (Rectangle projectile : projectiles) {
-                        g.fillRect(projectile.x, projectile.y, PROJECTILE_SIZE, PROJECTILE_SIZE);
-                    }
+            g.setColor(Color.YELLOW);
+            for (Rectangle projectile : projectiles) {
+                g.drawImage(shooterImage, projectile.x, projectile.y, PROJECTILE_SIZE, PROJECTILE_SIZE, this);
+            }
 
-                    g.setColor(Color.WHITE);
-                    for (Rectangle enemy : enemies) {
-                        g.fillRect(enemy.x, enemy.y, ENEMY_SIZE, ENEMY_SIZE);
-                    }
+            g.setColor(Color.WHITE);
+            for (Rectangle enemy : enemies) {
+                g.fillRect(enemy.x, enemy.y, ENEMY_SIZE, ENEMY_SIZE);
+            }
 
-                    // Desenăm scorul
-                    g.setColor(Color.WHITE);
-                    g.setFont(new Font("Arial", Font.BOLD, 20));
-                    g.drawString("Scor: " + score, 10, 20);
+            // Desenăm scorul
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.BOLD, 20));
+            g.drawString("Scor: " + score, 10, 20);
         } else {
             // Afisăm mesajul GAME OVER
             g.setColor(Color.RED);
