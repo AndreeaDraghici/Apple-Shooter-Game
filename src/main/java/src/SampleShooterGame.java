@@ -1,4 +1,4 @@
-package org.example;
+package src;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.Scanner;
 import javax.imageio.ImageIO;
 
-import static org.example.Utils.*;
+import static src.Constants.*;
 
 public class SampleShooterGame extends JPanel implements ActionListener, KeyListener, MouseListener  {
 
@@ -255,10 +255,10 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
             while (projectileIterator.hasNext()) {
                 Rectangle projectile = projectileIterator.next();
                 Rectangle expandedEnemy = new Rectangle(
-                        enemy.x - Utils.HIT_TOLERANCE,
-                        enemy.y - Utils.HIT_TOLERANCE,
-                        enemy.width + 2 * Utils.HIT_TOLERANCE,
-                        enemy.height + 2 * Utils.HIT_TOLERANCE
+                        enemy.x - Constants.HIT_TOLERANCE,
+                        enemy.y - Constants.HIT_TOLERANCE,
+                        enemy.width + 2 * Constants.HIT_TOLERANCE,
+                        enemy.height + 2 * Constants.HIT_TOLERANCE
                 );
                 if (expandedEnemy.intersects(projectile)) {
                     projectileIterator.remove();

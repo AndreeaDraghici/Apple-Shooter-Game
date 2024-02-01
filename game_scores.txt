@@ -12,3 +12,5 @@ Score: 0
 Score: 10
 Score: 20
 
+Score: 0
+Score: 30
