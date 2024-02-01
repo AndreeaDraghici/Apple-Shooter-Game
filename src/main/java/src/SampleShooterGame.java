@@ -34,11 +34,15 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     private String gameRulesText;
     private boolean gameOver = false; // Flag pentru a verifica dacă jocul s-a terminat
     private boolean gameStarted = false;
+    private JButton startHardButton;
+    private boolean hardMode = false;
     private JButton startButton;
     private Image playerImage;
     private Image enemyImage;
     private Image shooterImage;
     private Image backgroundImage;
+    private static final String NORMAL_MODE_SCORES_FILE = "game_scores.txt";
+    private static final String HARD_MODE_SCORES_FILE = "game_scores_hard.txt";
 
     public SampleShooterGame() {
         setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
@@ -57,7 +61,54 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
 
         startButton.setBounds(buttonX, buttonY, buttonWidth, buttonHeight);
         add(startButton);
-        // Ajustați dimensiunile imaginii aici
+
+        int buttonWidth2 = 250;
+        startHardButton = new RoundedButton("Start Game Hard", new Color(85, 176, 222, 220), 25);
+        int hardButtonX = buttonX-30; // Poziția X rămâne la fel
+        int hardButtonY = buttonY + buttonHeight - 110; // Y este puțin sub butonul de start
+
+        startHardButton.setBounds(hardButtonX, hardButtonY, buttonWidth2, buttonHeight);
+        add(startHardButton);
+
+        JLabel rulesLabel = getjLabelGame();
+
+        startOverButton = new Rectangle(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 + 50, 200, 40);
+        addMouseListener(this);
+
+        try {
+            playerImage = ImageIO.read(getClass().getResource("/otter.png"));
+            shooterImage = ImageIO.read(getClass().getResource("/appleShooter.png"));
+            enemyImage = ImageIO.read(getClass().getResource("/ice.png"));
+            backgroundImage = ImageIO.read(getClass().getResource("/game2.png")); // Încarcă imaginea de fundal
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        timer = new Timer(1000 / 60, this);
+        timer.start();
+        startButton.addActionListener(e -> {
+            remove(startButton); // Eliminăm butonul după ce este apăsat
+            remove(rulesLabel);
+            remove(startHardButton);
+            gameStarted = true;
+            timer.start(); // Pornim timer-ul abia după ce butonul este apăsat
+            requestFocusInWindow(); // Solicităm focusul pentru a primi evenimentele de la tastatură
+        });
+        startHardButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                remove(startButton); // Eliminăm butonul de start
+                remove(startHardButton); // Eliminăm butonul de start hard
+                remove(rulesLabel); // Eliminăm eticheta cu reguli
+                hardMode = true; // Setăm modul dificil pe true
+                gameStarted = true;
+                timer.start(); // Pornim timer-ul
+                requestFocusInWindow(); // Solicităm focusul
+            }
+        });
+    }
+
+    private JLabel getjLabelGame() {
         int imageWidth = 60; // Lățimea dorită pentru imagine
         int imageHeight = 30; // Înălțimea dorită pentru imagine
         int imageWidthR = 40; // Lățimea dorită pentru imagine
@@ -81,31 +132,9 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
 
         rulesLabel.setBounds(labelX, labelY, labelWidth, labelHeight);
         add(rulesLabel);
-
-
-        startOverButton = new Rectangle(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 + 50, 200, 40);
-        addMouseListener(this);
-
-        try {
-            playerImage = ImageIO.read(getClass().getResource("/otter.png"));
-            shooterImage = ImageIO.read(getClass().getResource("/appleShooter.png"));
-            enemyImage = ImageIO.read(getClass().getResource("/ice.png"));
-            backgroundImage = ImageIO.read(getClass().getResource("/game2.png")); // Încarcă imaginea de fundal
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        timer = new Timer(1000 / 60, this);
-        timer.start();
-        startButton.addActionListener(e -> {
-            remove(startButton); // Eliminăm butonul după ce este apăsat
-            remove(rulesLabel);
-            gameStarted = true;
-            timer.start(); // Pornim timer-ul abia după ce butonul este apăsat
-            requestFocusInWindow(); // Solicităm focusul pentru a primi evenimentele de la tastatură
-        });
-
+        return rulesLabel;
     }
+
     private void setAllFonts(Component component, Font font) {
         component.setFont(font);
         if (component instanceof Container) {
@@ -184,7 +213,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     }
 
     private void getHighestScoreOfGame(Graphics g) {
-        highestScore = getHighestScoreFromFile();
+        highestScore = getHighestScoreFromFile(hardMode ? HARD_MODE_SCORES_FILE : NORMAL_MODE_SCORES_FILE);
         Font highScoreFont = new Font("Arial", Font.BOLD,30);
         g.setFont(highScoreFont);
         String highestScoreText = "The highest score: " + highestScore;
@@ -275,7 +304,16 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
             for (Rectangle enemy : enemies) {
                 enemy.y += 5;
             }
+            if (hardMode) {
+                if (frames % (ENEMY_SPAWN_RATE / 2) == 0) { // Inamicii apar de două ori mai des
+                    int enemyX = (int) (Math.random() * (WINDOW_WIDTH - ENEMY_SIZE));
+                    enemies.add(new Rectangle(enemyX, 0, ENEMY_SIZE, ENEMY_SIZE));
+                }
 
+                for (Rectangle enemy : enemies) {
+                    enemy.y += 10; // Inamicii cad cu o viteză mai mare
+                }
+            }
             // Verifică coliziunile
             checkCollisions();
 
@@ -313,15 +351,16 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
             if (playerRect.intersects(enemy)) {
                 gameOver = true; // Setăm flag-ul gameOver pe true
                 currentGameScore = score;
-                saveScoreToFile(score);
                 timer.stop(); // Oprim timer-ul pentru a opri actualizarea jocului
 
-                highestScore = getHighestScoreFromFile();
+                // Determinăm numele fișierului pe baza modului de joc
+                String scoreFile = hardMode ? HARD_MODE_SCORES_FILE : NORMAL_MODE_SCORES_FILE;
+                saveScoreToFile(score, scoreFile);
+                highestScore = getHighestScoreFromFile(scoreFile);
+
                 if (score > highestScore) {
-                    //isNewRecord = false;
                     isNewRecord = true;
                 } else {
-                   // isNewRecord = true;
                     isNewRecord = false;
                 }
                 System.out.println(isNewRecord);
@@ -362,17 +401,19 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
         playerImageWidth = width;
         playerImageHeight = height;
     }
-    private void saveScoreToFile(int score) {
-        try (FileWriter writer = new FileWriter("game_scores.txt", true)) {
+
+    private void saveScoreToFile(int score, String fileName) {
+        try (FileWriter writer = new FileWriter(fileName, true)) {
             writer.write("Score: " + score + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private int getHighestScoreFromFile() {
+    // Modifică metoda getHighestScoreFromFile pentru a accepta numele fișierului ca parametru
+    private int getHighestScoreFromFile(String fileName) {
         int highestScore = 0;
-        try (Scanner scanner = new Scanner(new File("game_scores.txt"))) {
+        try (Scanner scanner = new Scanner(new File(fileName))) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 try {
