@@ -92,6 +92,10 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
 
         timer = new Timer(1000 / 60, this);
         timer.start();
+        setButtonsToMenu();
+    }
+
+    private void setButtonsToMenu() {
         startButton.addActionListener(e -> {
             remove(startButton); // Eliminăm butonul după ce este apăsat
             remove(rulesLabel);
