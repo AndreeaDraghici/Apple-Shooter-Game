@@ -64,7 +64,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
             shooterImage = ImageIO.read(getClass().getResource("/appleShooter.png"));
             enemyImage = ImageIO.read(getClass().getResource("/ice.png"));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
 
         timer = new Timer(1000 / 60, this);
@@ -90,12 +90,9 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (!gameStarted) {
-            // The start button is managed by Swing, so no need to draw it here.
-            // Just return to avoid drawing game components.
             return;
         }
         if (!gameOver) {
-            //super.paintComponent(g);
             g.drawImage(playerImage, playerX, WINDOW_HEIGHT - 10 - playerImageHeight, playerImageWidth, playerImageHeight, this);
 
             g.setColor(Color.YELLOW);
@@ -188,23 +185,31 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
 
     private void setMessageGameScore(Graphics g) {
         if (highestScore == currentGameScore) {
-            String newRecordText = "Congratulations! You set a new record!";
-            Font newRecordFont = new Font("Arial", Font.BOLD, 20);
-            g.setFont(newRecordFont);
-            int newRecordWidth = g.getFontMetrics(newRecordFont).stringWidth(newRecordText);
-            int newRecordX = (WINDOW_WIDTH - newRecordWidth) / 2;
-            g.setColor(Color.ORANGE);
-            g.drawString(newRecordText, newRecordX, WINDOW_HEIGHT / 2 - 170);
+            establishNewRecord(g);
         }
         else {
-            String m = "Keep trying!";
-            Font newRecordFont = new Font("Arial", Font.BOLD, 20);
-            g.setFont(newRecordFont);
-            int newRecordWidth = g.getFontMetrics(newRecordFont).stringWidth(m);
-            int newRecordX = (WINDOW_WIDTH - newRecordWidth) / 2;
-            g.setColor(Color.ORANGE);
-            g.drawString(m, newRecordX, WINDOW_HEIGHT / 2 - 170);
+            keepTrying(g);
         }
+    }
+
+    private static void keepTrying(Graphics g) {
+        String m = "Keep trying!";
+        Font newRecordFont = new Font("Arial", Font.BOLD, 20);
+        g.setFont(newRecordFont);
+        int newRecordWidth = g.getFontMetrics(newRecordFont).stringWidth(m);
+        int newRecordX = (WINDOW_WIDTH - newRecordWidth) / 2;
+        g.setColor(Color.ORANGE);
+        g.drawString(m, newRecordX, WINDOW_HEIGHT / 2 - 170);
+    }
+
+    private static void establishNewRecord(Graphics g) {
+        String newRecordText = "Congratulations! You set a new record!";
+        Font newRecordFont = new Font("Arial", Font.BOLD, 20);
+        g.setFont(newRecordFont);
+        int newRecordWidth = g.getFontMetrics(newRecordFont).stringWidth(newRecordText);
+        int newRecordX = (WINDOW_WIDTH - newRecordWidth) / 2;
+        g.setColor(Color.ORANGE);
+        g.drawString(newRecordText, newRecordX, WINDOW_HEIGHT / 2 - 170);
     }
 
     @Override
@@ -279,13 +284,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
                 timer.stop(); // Oprim timer-ul pentru a opri actualizarea jocului
 
                 highestScore = getHighestScoreFromFile();
-                if (score > highestScore) {
-                    //isNewRecord = false;
-                    isNewRecord = true;
-                } else {
-                   // isNewRecord = true;
-                    isNewRecord = false;
-                }
+                isNewRecord = score > highestScore;
                 System.out.println(isNewRecord);
                 break;
             }
@@ -295,40 +294,51 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     @Override
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_LEFT -> moveLeft = true;
-            case KeyEvent.VK_RIGHT -> moveRight = true;
-            case KeyEvent.VK_SPACE -> shooting = true;
-            case KeyEvent.VK_R -> {
+            case KeyEvent.VK_LEFT:
+                moveLeft = true;
+                break;
+            case KeyEvent.VK_RIGHT:
+                moveRight = true;
+                break;
+            case KeyEvent.VK_SPACE:
+                shooting = true;
+                break;
+            case KeyEvent.VK_R:
                 if (gameOver) {
                     restartGame(); // Restart the game if it's over
                 }
-            }
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + e.getKeyCode());
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_LEFT -> moveLeft = false;
-            case KeyEvent.VK_RIGHT -> moveRight = false;
-            case KeyEvent.VK_SPACE -> shooting = false;
+            case KeyEvent.VK_LEFT:
+                moveLeft = false;
+                break;
+            case KeyEvent.VK_RIGHT:
+                moveRight = false;
+                break;
+            case KeyEvent.VK_SPACE:
+                shooting = false;
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + e.getKeyCode());
         }
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
-        // Această metodă nu este utilizată, dar trebuie să fie prezentă din cauza implementării KeyListener
     }
 
-    public void setPlayerImageSize(int width, int height) {
-        playerImageWidth = width;
-        playerImageHeight = height;
-    }
     private void saveScoreToFile(int score) {
         try (FileWriter writer = new FileWriter("game_scores.txt", true)) {
             writer.write("Score: " + score + "\n");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 
@@ -338,16 +348,21 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 try {
-                    int scoreFromFile = Integer.parseInt(line.replace("Score: ", ""));
-                    if (scoreFromFile > highestScore) {
-                        highestScore = scoreFromFile;
-                    }
-                } catch (NumberFormatException e) {
-                    // Ignoră liniile care nu pot fi parsate în numere
+                    highestScore = getHighestScore(line, highestScore);
+                } catch (NumberFormatException ignored) {
+
                 }
             }
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+        }
+        return highestScore;
+    }
+
+    private static int getHighestScore(String line, int highestScore) {
+        int scoreFromFile = Integer.parseInt(line.replace("Score: ", ""));
+        if (scoreFromFile > highestScore) {
+            highestScore = scoreFromFile;
         }
         return highestScore;
     }
