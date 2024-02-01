@@ -41,6 +41,8 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     private Image enemyImage;
     private Image shooterImage;
     private Image backgroundImage;
+    private JLabel rulesLabel;
+    private JButton resetButton;
     private static final String NORMAL_MODE_SCORES_FILE = "game_scores.txt";
     private static final String HARD_MODE_SCORES_FILE = "game_scores_hard.txt";
 
@@ -70,10 +72,14 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
         startHardButton.setBounds(hardButtonX, hardButtonY, buttonWidth2, buttonHeight);
         add(startHardButton);
 
-        JLabel rulesLabel = getjLabelGame();
+        rulesLabel = getjLabelGame();
 
         startOverButton = new Rectangle(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 + 50, 200, 40);
         addMouseListener(this);
+
+        resetButton = new RoundedButton("Go To The Game Menu", new Color(85, 176, 222, 220), 25);
+        resetButton.setBounds(WINDOW_WIDTH / 2 - 150, WINDOW_HEIGHT / 2 + 100, 300, 50);
+        resetButton.addActionListener(e -> initializeGame());
 
         try {
             playerImage = ImageIO.read(getClass().getResource("/otter.png"));
@@ -90,6 +96,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
             remove(startButton); // Eliminăm butonul după ce este apăsat
             remove(rulesLabel);
             remove(startHardButton);
+            remove(resetButton);
             gameStarted = true;
             timer.start(); // Pornim timer-ul abia după ce butonul este apăsat
             requestFocusInWindow(); // Solicităm focusul pentru a primi evenimentele de la tastatură
@@ -100,6 +107,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
                 remove(startButton); // Eliminăm butonul de start
                 remove(startHardButton); // Eliminăm butonul de start hard
                 remove(rulesLabel); // Eliminăm eticheta cu reguli
+                remove(resetButton);
                 hardMode = true; // Setăm modul dificil pe true
                 gameStarted = true;
                 timer.start(); // Pornim timer-ul
@@ -189,7 +197,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
         int x = 50; // distanța de la marginea ferestrei
         int y = WINDOW_HEIGHT / 4; // începe la un sfert din înălțimea ferestrei
         int width = WINDOW_WIDTH - 100; // lățimea este lățimea ferestrei minus 100
-        int height = (WINDOW_HEIGHT / 2)-100; // înălțimea este jumătate din înălțimea ferestrei
+        int height = (WINDOW_HEIGHT / 2) - 30; // înălțimea este jumătate din înălțimea ferestrei
         int arcWidth = 20; // lățimea arcului pentru margini rotunjite
         int arcHeight = 20; // înălțimea arcului pentru margini rotunjite
 
@@ -203,7 +211,8 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
         // Setăm culoarea și fontul pentru text
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, 20));
-
+        add(resetButton);
+        resetButton.setVisible(true);
         // Apelăm metodele existente pentru a desena textele în cadran
         setMessageGameOver(g);
         setStartGameOver(g);
@@ -352,7 +361,9 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
                 gameOver = true; // Setăm flag-ul gameOver pe true
                 currentGameScore = score;
                 timer.stop(); // Oprim timer-ul pentru a opri actualizarea jocului
-
+                remove(startButton);
+                remove(startHardButton);
+                remove(rulesLabel);
                 // Determinăm numele fișierului pe baza modului de joc
                 String scoreFile = hardMode ? HARD_MODE_SCORES_FILE : NORMAL_MODE_SCORES_FILE;
                 saveScoreToFile(score, scoreFile);
@@ -441,6 +452,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
         frames = 0;
         isNewRecord = false;
         gameOver = false;
+        remove(resetButton);
         timer.start();
     }
     // Metodele MouseListener
@@ -453,6 +465,27 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
                 restartGame();
             }
         }
+    }
+
+    private void initializeGame() {
+        // Adaugă din nou label-ul cu regulile și butoanele de start
+        add(rulesLabel);
+        add(startButton);
+        add(startHardButton);
+        resetButton.setVisible(false);
+        remove(resetButton);
+        gameStarted = false;
+        hardMode = false;
+        gameOver = false;
+        isNewRecord = false;
+        score = 0;
+        currentGameScore = 0;
+        highestScore = 0;
+        projectiles.clear();
+        enemies.clear();
+        frames = 0;
+        timer.stop();
+        repaint(); // Reîmprospătarea interfeței grafice pentru a afișa componentele adăugate
     }
 
     @Override

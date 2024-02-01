@@ -1,5 +1,4 @@
+Score: 20
 Score: 0
 Score: 0
-Score: 50
-Score: 10
-Score: 90
+Score: 30
