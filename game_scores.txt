@@ -1,0 +1,14 @@
+Score: 20
+Score: 30
+Score: 40
+Score: 10
+Score: 20
+Score: 10
+Score: 40
+Score: 40
+Score: 0
+Score: 0
+Score: 0
+Score: 10
+Score: 20
+
