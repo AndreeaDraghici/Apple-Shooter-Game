@@ -31,13 +31,14 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     private ArrayList<Rectangle> projectiles = new ArrayList<>();
     private ArrayList<Rectangle> enemies = new ArrayList<>();
     private int frames = 0;
-
+    private String gameRulesText;
     private boolean gameOver = false; // Flag pentru a verifica dacă jocul s-a terminat
     private boolean gameStarted = false;
     private JButton startButton;
     private Image playerImage;
     private Image enemyImage;
     private Image shooterImage;
+    private Image backgroundImage;
 
     public SampleShooterGame() {
         setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
@@ -45,16 +46,42 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
         setFocusable(true);
         addKeyListener(this);
         setLayout(null);
+
         // Setăm dimensiunile butonului
-        int buttonWidth = 150;
-        int buttonHeight = 40;
-        startButton = new JButton("Start Game");
+        int buttonWidth = 180;
+        int buttonHeight = 50;
+        startButton = new RoundedButton("Start Game", new Color(85, 176, 222,220), 25);
         // Calculăm poziția centrală pentru buton
         int buttonX = WINDOW_WIDTH / 2 - buttonWidth / 2;
-        int buttonY = WINDOW_HEIGHT / 2 - buttonHeight / 2;
+        int buttonY = WINDOW_HEIGHT / 2 - buttonHeight + 390;
 
         startButton.setBounds(buttonX, buttonY, buttonWidth, buttonHeight);
         add(startButton);
+        // Ajustați dimensiunile imaginii aici
+        int imageWidth = 60; // Lățimea dorită pentru imagine
+        int imageHeight = 30; // Înălțimea dorită pentru imagine
+        int imageWidthR = 40; // Lățimea dorită pentru imagine
+        int imageHeightR = 30; // Înălțimea dorită pentru imagine
+        gameRulesText = "<html>Game rules:<br>" +
+                "<br>" +
+                "Use the <img src='" + getClass().getResource("/keys.png") + "' width='" + imageWidth + "' height='" + imageHeight + "'> arrow keys to move the character.<br>" +
+                "<br>" +
+                "Press <img src='" + getClass().getResource("/space.png") + "' width='" + imageWidth + "' height='" + imageHeight + "'> space button to shoot apples.<br>" +
+                "<br>" +
+                "You can restart the game by pressing the <img src='" + getClass().getResource("/r-key.png") + "' width='" + imageWidthR + "' height='" + imageHeightR + "'> key.</html>";
+
+        JLabel rulesLabel = new JLabel(gameRulesText);
+        rulesLabel.setForeground(Color.WHITE);
+        rulesLabel.setFont(new Font("Arial", Font.BOLD, 16));
+
+        int labelWidth = 400;
+        int labelHeight = 250;
+        int labelX = WINDOW_WIDTH / 2 - labelWidth / 2 - 180;
+        int labelY = WINDOW_HEIGHT / 2 - labelHeight / 2 - 300;  // puțin deasupra butonului
+
+        rulesLabel.setBounds(labelX, labelY, labelWidth, labelHeight);
+        add(rulesLabel);
+
 
         startOverButton = new Rectangle(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 + 50, 200, 40);
         addMouseListener(this);
@@ -63,6 +90,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
             playerImage = ImageIO.read(getClass().getResource("/otter.png"));
             shooterImage = ImageIO.read(getClass().getResource("/appleShooter.png"));
             enemyImage = ImageIO.read(getClass().getResource("/ice.png"));
+            backgroundImage = ImageIO.read(getClass().getResource("/game2.png")); // Încarcă imaginea de fundal
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -71,6 +99,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
         timer.start();
         startButton.addActionListener(e -> {
             remove(startButton); // Eliminăm butonul după ce este apăsat
+            remove(rulesLabel);
             gameStarted = true;
             timer.start(); // Pornim timer-ul abia după ce butonul este apăsat
             requestFocusInWindow(); // Solicităm focusul pentru a primi evenimentele de la tastatură
@@ -90,8 +119,17 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (!gameStarted) {
-            // The start button is managed by Swing, so no need to draw it here.
-            // Just return to avoid drawing game components.
+            g.drawImage(backgroundImage, 0, 0, this.getWidth(), this.getHeight(), this); // Desenarea imaginii de fundal
+
+            // Desenarea chenarului
+            int labelWidth = 420;
+            int labelHeight = 200;
+            int labelX = WINDOW_WIDTH / 2 - labelWidth / 2 -180;
+            int labelY = WINDOW_HEIGHT / 2 - labelHeight / 2 - 295; // poziționat puțin deasupra butonului
+
+            Color backgroundColor = new Color(0, 0, 0, 128); // Culoarea negru cu transparență (128)
+            g.setColor(backgroundColor);
+            g.fillRoundRect(labelX, labelY, labelWidth, labelHeight, 30, 30); // margini rotunjite
             return;
         }
         if (!gameOver) {
