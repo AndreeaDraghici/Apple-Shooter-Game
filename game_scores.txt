@@ -24,4 +24,6 @@ Score: 0
 Score: 0
 Score: 0
 Score: 0
+Score: 30
+Score: 370
 Score: 0
