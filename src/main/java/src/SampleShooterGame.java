@@ -386,7 +386,7 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
                 } else {
                     isNewRecord = false;
                 }
-                highestScore = getHighestScoreFromFile();
+                highestScore = getHighestScoreFromFile(scoreFile);
                 isNewRecord = score > highestScore;
                 System.out.println(isNewRecord);
                 break;
@@ -442,8 +442,6 @@ public class SampleShooterGame extends JPanel implements ActionListener, KeyList
     }
 
     private void saveScoreToFile(int score, String fileName) {
-        try (FileWriter writer = new FileWriter(fileName, true)) {
-    private void saveScoreToFile(int score) {
         try (FileWriter writer = new FileWriter("game_scores.txt", true)) {
             writer.write("Score: " + score + "\n");
         } catch (IOException e) {
