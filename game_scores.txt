@@ -25,3 +25,5 @@ Score: 0
 Score: 0
 Score: 0
 Score: 0
+Score: 50
+Score: 20
